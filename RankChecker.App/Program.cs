@@ -6,7 +6,7 @@ var rankChecker = new RankService(repo);
 
 try
 {
-    var IncorrectRanks = await rankChecker.CheckRanksAsync();
+    var IncorrectRanks = await rankChecker.CheckRanksAsync(false, false);
     if (IncorrectRanks.Count > 0)
     {
         foreach(var check in IncorrectRanks)

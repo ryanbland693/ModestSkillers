@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,37 +13,17 @@ namespace DAL.ClanMember
     }
     public class ClanMemberRepo : IClanMemberRepo
     {
-        const string url = @"https://secure.runescape.com/m=clan-hiscores/a=13/members_lite.ws?clanName=Modest Skillers";
+        const string url = @"https://api.runepixels.com/clans/2096/list?playertype=0&playersubtype=0";
 
         public async Task<List<ClanMember>> GetMembersAsync()
         {
             using HttpClient client = new HttpClient();
-            var res = await client.GetStringAsync(url);
-            if (!string.IsNullOrEmpty(res))
+            var res =  await client.GetFromJsonAsync<List<ClanMember>>(url);
+            if (res != null) 
             {
-                var members = new List<ClanMember>();
-                var rawResponse = res.Split("\n").Skip(1);
-                foreach (var line in rawResponse)
-                {
-                    var props = line.Split(",");
-                    if (props.Length > 3)
-                    {
-                        members.Add(new ClanMember
-                        {
-                            Name = props[0],
-                            Rank = (Rank)Enum.Parse(typeof(Rank), props[1].Replace(" ", "")),
-                            ClanXp = long.Parse(props[2]),
-                            Kills = long.Parse(props[3])
-                        });
-                    }
-                    
-                }
-                return members;
+                return res;
             }
-            else
-            {
-                throw new ClanMemberException("Could not retrieve clan members");
-            }
+            throw new ClanMemberException("Failed to retrieve clan members");
         }
 
     }
