@@ -4,7 +4,7 @@ using DAL.ClanMember;
 var repo = new ClanMemberRepo();
 var rankChecker = new RankService(repo);
 
-var generals = await rankChecker.CheckGeneralsAsync();
+var generals = await rankChecker.CheckGeneralsAsync(true);
 foreach (var gen in generals)
 {
     Console.WriteLine($"Name = {string.Format("{0,-12}", gen.Name)}" +

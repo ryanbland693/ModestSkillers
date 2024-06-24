@@ -2,7 +2,12 @@
 
 namespace RankChecker.BusinessLogic
 {
-    public class RankService
+    public interface IRankService
+    {
+        Task<List<ClanMemberRankCheck>> CheckRanksAsync(bool checkTooHigh, bool includeUnknownJoinDate);
+        Task<List<GeneralRankCheck>> CheckGeneralsAsync(bool includeUnknownJoinDate);
+    }
+    public class RankService : IRankService
     {
         private readonly IClanMemberRepo repo;
 
