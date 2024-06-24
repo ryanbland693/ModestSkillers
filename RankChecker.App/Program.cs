@@ -4,6 +4,17 @@ using DAL.ClanMember;
 var repo = new ClanMemberRepo();
 var rankChecker = new RankService(repo);
 
+var generals = await rankChecker.CheckGeneralsAsync();
+foreach (var gen in generals)
+{
+    Console.WriteLine($"Name = {string.Format("{0,-12}", gen.Name)}" +
+            $"XP = {string.Format("{0,-12}", gen.CurrentXp.ToString("n0"))}" +
+             $"Join Date = {string.Format("{0,-15}", gen.JoinDate.ToString("dd-MM-yyyy"))}" +
+             $"Rankup XP = {string.Format("{0,-12}", gen.RankupXp)}" +
+             $"Rankup Date = {string.Format("{0,-15}", gen.RankupDate)}" 
+        );
+}
+
 try
 {
     var IncorrectRanks = await rankChecker.CheckRanksAsync(false, false);
