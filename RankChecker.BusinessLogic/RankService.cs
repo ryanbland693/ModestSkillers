@@ -19,7 +19,7 @@ namespace RankChecker.BusinessLogic
             }
             if (member.Xp < 100_000_000)
             {
-                return Rank.Corporal; 
+                return Rank.Corporal;
             }
             if (member.Xp < 200_000_000)
             {
@@ -40,20 +40,31 @@ namespace RankChecker.BusinessLogic
             return CheckAdminRank(member);
         }
 
-        private Rank CheckAdminRank(ClanMember member) 
+        private bool IsYearsInClan(ClanMember member, int years)
         {
-            if (DateTime.UtcNow.AddYears(-2) > member.JoinDate)
+            return DateTime.UtcNow.AddYears(-1 * years) > member.JoinDate;
+        }
+
+        private int YearsInClan(ClanMember member)
+        {
+            return Convert.ToInt32(Math.Floor((DateTime.UtcNow - member.JoinDate).Days / 365.25));
+        }
+
+        private Rank CheckAdminRank(ClanMember member)
+        {
+            var yearsInClan = YearsInClan(member);
+            if (yearsInClan == 2)
             {
                 return member.Xp > 500_000_000 ? Rank.Admin : Rank.General;
             }
-            else if (DateTime.UtcNow.AddYears(-1) > member.JoinDate)
+            else if (yearsInClan == 1)
             {
                 return member.Xp > 1_000_000_000 ? Rank.Admin : Rank.General;
             }
             return Rank.General;
         }
 
-        public bool IsCorrectRank(ClanMember member) 
+        public bool IsCorrectRank(ClanMember member)
         {
             if ((int)member.Rank >= (int)Rank.Organiser) // organiser+
                 return true;
@@ -81,11 +92,11 @@ namespace RankChecker.BusinessLogic
                     }
                     if (check.CurrentRank < check.ExpectedRank || checkTooHigh)
                     {
-                        if (includeUnknownJoinDate) 
+                        if (includeUnknownJoinDate)
                         {
                             output.Add(check);
                         }
-                        else if (member.JoinDate != DateTime.MinValue || check.ExpectedRank != Rank.Admin ) 
+                        else if (member.JoinDate != DateTime.MinValue || check.ExpectedRank != Rank.Admin)
                         {
                             output.Add(check);
                         }
@@ -94,5 +105,35 @@ namespace RankChecker.BusinessLogic
             }
             return output.OrderBy(m => m.CurrentRank).ThenBy(m => m.Name).ToList();
         }
+
+        public async Task<List<GeneralRankCheck>> CheckGeneralsAsync(bool includeUnknownJoinDate)
+        {
+            var output = new List<GeneralRankCheck>();
+            var members = (await repo.GetMembersAsync()).Where(m => m.Rank == Rank.General);
+            foreach (var member in members)
+            {
+                var check = new GeneralRankCheck { Name = member.Name, CurrentXp = member.Xp, JoinDate = member.JoinDate };
+                if (includeUnknownJoinDate || check.JoinDate != DateTime.MinValue)
+                {
+                    output.Add(check);
+                    if (member.JoinDate != DateTime.MinValue)
+                    {
+                        check.YearsInClan = YearsInClan(member);
+                        if (YearsInClan(member) >= 2)
+                        {
+                            check.RankupXp = 500_000_000 - member.Xp;
+                        }
+                        else
+                        {
+                            check.RankupXp = 1_000_000_000 - member.Xp;
+                            check.RankupDate = member.JoinDate.AddYears(2);
+                        }
+                    }
+                }
+                
+            }
+            return output.OrderBy(m => m.JoinDate).ToList();
+        }
+
     }
 }

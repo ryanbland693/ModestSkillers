@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
 
 namespace DAL.ClanMember
 {
@@ -18,8 +13,8 @@ namespace DAL.ClanMember
         public async Task<List<ClanMember>> GetMembersAsync()
         {
             using HttpClient client = new HttpClient();
-            var res =  await client.GetFromJsonAsync<List<ClanMember>>(url);
-            if (res != null) 
+            var res = await client.GetFromJsonAsync<List<ClanMember>>(url);
+            if (res != null)
             {
                 return res;
             }
