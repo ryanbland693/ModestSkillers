@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using RankChecker.BusinessLogic;
+using WebAPI.DTO;
 
 namespace WebAPI.Controllers
 {
@@ -7,18 +9,21 @@ namespace WebAPI.Controllers
     public class RankController : ControllerBase
     {
         private readonly IRankService rankService;
+        private readonly IMapper mapper;
 
-        public RankController(IRankService rankService)
+        public RankController(IRankService rankService, IMapper mapper)
         {
             this.rankService = rankService;
+            this.mapper = mapper;
         }
         [HttpGet("rankups")]
-        public async Task<ActionResult<List<ClanMemberRankCheck>>> GetRankupsAsync([FromQuery] bool checkTooHigh, [FromQuery] bool includeUnknownJoinDates)
+        public async Task<ActionResult<List<ClanMemberRankCheckDTO>>> GetRankupsAsync([FromQuery] bool checkTooHigh, [FromQuery] bool includeUnknownJoinDates)
         {
             var rankups = await rankService.CheckRanksAsync(checkTooHigh, includeUnknownJoinDates);
             if (rankups is not null)
             {
-                return Ok(rankups);
+                var res = mapper.Map<List<ClanMemberRankCheckDTO>>(rankups);
+                return Ok(res);
             }
             else
             {

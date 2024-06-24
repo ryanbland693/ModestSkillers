@@ -1,5 +1,6 @@
 using DAL.ClanMember;
 using RankChecker.BusinessLogic;
+using WebAPI.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IClanMemberRepo, ClanMemberRepo>();
 builder.Services.AddScoped<IRankService, RankService>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
