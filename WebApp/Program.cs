@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using DAL.ClanMember;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +22,9 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+
+builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<IClanMemberRepo, ClanMemberRepo>();
 builder.Services.AddScoped<IRankService, RankService>();

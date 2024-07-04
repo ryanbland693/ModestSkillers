@@ -1,18 +1,19 @@
 ﻿@page "/rankups"
 @using RankChecker.BusinessLogic
 @inject IRankService rankService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 <h3>Rank Ups</h3>
 <MudPaper Class="mb-4 d-flex justify-center align-content-center" Elevation="0">
     <MudStack Row>
 
     
-        <MudCheckBox T="bool" Label="Check for ranks that are too high" ValueChanged="OnUpdateCheckTooHigh"  />
+        <MudCheckBox T="bool" Label="Check for ranks that are too high" Value="CheckTooHigh" ValueChanged="OnUpdateCheckTooHigh"  />
         <MudCheckBox T="bool" Label="Include users with an unknown join date" Value="IncludeUnknownJoinDates" ValueChanged="OnUpdateIncludeUnknownJoinDates" />
         <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="FetchData">Refresh</MudButton>
     </MudStack>
 </MudPaper>
-@if(Checks is null)
+@if(Checks is null || loading)
 {
     <MudProgressCircular Indeterminate Color="Color.Primary" />
 } 
@@ -48,32 +49,41 @@ else
     List<ClanMemberRankCheck>? Checks;
     public Boolean CheckTooHigh { get; set; }
     public Boolean IncludeUnknownJoinDates { get; set; }
+    bool loading;
 
     private Func<ClanMemberRankCheck, object> NameSort = x => x.Name;
     private Func<ClanMemberRankCheck, object> XpSort = x => x.ClanXp;
     private Func<ClanMemberRankCheck, object> CurrentRankSort = x => x.CurrentRank;
     private Func<ClanMemberRankCheck, object> ExpectedRankSort = x => x.ExpectedRank;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await FetchData();
     }
 
     private async Task FetchData() 
     {
-        Checks = null;
+        CheckTooHigh = (await localStorage.GetItemAsync<string>(nameof(CheckTooHigh))) == bool.TrueString;
+        IncludeUnknownJoinDates = (await localStorage.GetItemAsync<string>(nameof(IncludeUnknownJoinDates))) == bool.TrueString;
         Checks = await rankService.CheckRanksAsync(CheckTooHigh, IncludeUnknownJoinDates);
+        base.StateHasChanged();
     }
 
     private async Task OnUpdateCheckTooHigh(bool value)
     {
+        loading = true;
         CheckTooHigh = value;
+        await localStorage.SetItemAsStringAsync(nameof(CheckTooHigh), CheckTooHigh.ToString());
         await FetchData();
+        loading = false;
     }
 
     private async Task OnUpdateIncludeUnknownJoinDates(bool value)
     {
+        loading = true;
         IncludeUnknownJoinDates = value;
+        await localStorage.SetItemAsStringAsync(nameof(IncludeUnknownJoinDates), IncludeUnknownJoinDates.ToString());
         await FetchData();
+        loading = false;
     }
 }
