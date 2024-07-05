@@ -20,6 +20,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\Constants\Constants.csproj" />
     <ProjectReference Include="..\RankChecker.BusinessLogic\RankChecker.BusinessLogic.csproj" />
   </ItemGroup>
 
