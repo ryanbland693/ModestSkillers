@@ -1,0 +1,38 @@
+﻿@page "/"
+
+<MudText Typo="Typo.h3">Home</MudText>
+
+<MudText Typo="Typo.body1">A collection of tools for Modest Skillers</MudText>
+<MudPaper>
+
+
+    <MudStack>
+        <MudText Typo="Typo.h6">Useful Links:</MudText>
+        @foreach(var link in Links)
+        {
+            <MudLink Href="@link.Href" Target="blank">@link.Text</MudLink>
+
+        }
+    </MudStack>
+</MudPaper>
+@code {
+    private class Link
+    {
+        public string Href { get; set; } = null!;
+        public string Text { get; set; } = null!;
+    }
+
+    List<Link> Links = new()
+    {
+        new()
+        {
+            Href = "https://secure.runescape.com/m=clan-home/clan/Modest%20Skillers",
+            Text = "Clan Page"
+        },
+        new()
+        {
+            Href = "https://runepixels.com/clans/modest-skillers/about",
+            Text = "RunePixels"
+        }
+    };
+}
